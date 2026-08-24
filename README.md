@@ -38,10 +38,10 @@ AI Agents attempting autonomous purchases frequently encounter complex, multi-st
 
 ## 🚀 How to Run Locally
 
-1. **Clone the repository and enter the backend directory:**
+1. **Clone the repository and enter the directory:**
    ```bash
    git clone <repo-url>
-   cd CheckoutGuard/backend
+   cd Checkout-Guard
    ```
 
 2. **Set up the virtual environment (Windows):**
