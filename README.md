@@ -63,3 +63,12 @@ AI Agents attempting autonomous purchases frequently encounter complex, multi-st
 
 5. **Run the Demo:**
    Use the buttons at the top of the dashboard to trigger live simulated failures and watch the Agent Loop autonomously recover or escalate them!
+
+
+Run :
+.venv\Scripts\activate
+python -m uvicorn app.main:app --reload
+
+http://127.0.0.1:8000/dashboard/
+
+
