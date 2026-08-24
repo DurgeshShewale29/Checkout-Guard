@@ -3,7 +3,9 @@ from typing import Dict, Any, Optional
 from app.engine.decision import classify_error, decide_action
 from app.db.audit import log_attempt
 
-BASE_URL = "http://127.0.0.1:8000"
+import os
+PORT = os.getenv("PORT", "8000")
+BASE_URL = f"http://127.0.0.1:{PORT}"
 
 class AgentRunner:
     """
