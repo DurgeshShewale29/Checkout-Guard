@@ -33,7 +33,7 @@ AI Agents attempting autonomous purchases frequently encounter complex, multi-st
 ## 💻 Tech Stack
 - **Backend:** Python 3, FastAPI, HTTPX
 - **Persistence:** SQLite (Built-in)
-- **Frontend Dashboard:** Vanilla HTML/JS/CSS
+- **Frontend Dashboard:** Vanilla HTML/JS/CSS (Served statically by FastAPI, no separate frontend build step required)
 - **Design Pattern:** Rule-based Autonomous Agent Loop
 
 ## 🚀 How to Run Locally
