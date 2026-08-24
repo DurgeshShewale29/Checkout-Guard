@@ -7,13 +7,14 @@
 
 ## Phase 0 — Setup
 
-- [ ] Create Razorpay account and enable **Test Mode**
-- [ ] Generate Test Mode API Key ID + Key Secret
-- [ ] Set up project folder structure (`/backend`, `/frontend`, `/docs`)
-- [ ] Initialize backend (FastAPI or Express — pick one)
-- [ ] Set up `.env` for API keys (never commit this)
-- [ ] Initialize git repo, create public GitHub repo
-- [ ] Write initial `README.md` with project name + one-line description
+- [ ] Create Razorpay account and enable **Test Mode** ← **YOU NEED TO DO THIS**
+- [ ] Generate Test Mode API Key ID + Key Secret ← **YOU NEED TO DO THIS**
+- [x] Set up project folder structure (`/backend`, `/frontend`, `/docs`)
+- [x] Initialize backend (FastAPI — Python 3.14, all 29 deps installed)
+- [x] Set up `.env` for API keys — `.env.example` committed, real `.env` gitignored
+- [x] Initialize git repo — initial commit `9f1ebdb` done (13 files)
+- [ ] Create public GitHub repo and push ← **YOU NEED TO DO THIS**
+- [x] Write initial `README.md` with project name + one-line description
 
 ---
 
