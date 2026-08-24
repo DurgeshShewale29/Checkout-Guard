@@ -1,0 +1,22 @@
+{
+  "timeout": {
+    "is_retryable": true,
+    "max_retries": 1,
+    "corrective_action": "retry once, then escalate"
+  },
+  "consent_missing": {
+    "is_retryable": true,
+    "max_retries": 3,
+    "corrective_action": "re-request consent, retry"
+  },
+  "token_expired": {
+    "is_retryable": true,
+    "max_retries": 3,
+    "corrective_action": "refresh token, retry"
+  },
+  "payment_failed": {
+    "is_retryable": false,
+    "max_retries": 0,
+    "corrective_action": "escalate"
+  }
+}
