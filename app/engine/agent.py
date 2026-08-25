@@ -69,43 +69,38 @@ class AgentRunner:
                 last_action = action_to_take
                 
                 if not persistent_failure:
-                    if category == "payment_failed":
-                        print("  [Agent] [CORRECTION] Applying REAL correction... (hitting Razorpay S2S API with fallback test card)")
+                    if category == "consent_missing":
+                        print("  [Agent] [CORRECTION] Applying REAL correction... (creating real Razorpay Payment Link for re-consent)")
                         try:
-                            # 1. Create a new order for the retry
-                            new_order_res = await client.post(f"{BASE_URL}/api/payments/orders", json={"amount": 1000})
-                            new_order_id = new_order_res.json().get("order_id")
-                            
                             import os
+                            from dotenv import load_dotenv
+                            load_dotenv()
                             key = os.getenv("RAZORPAY_KEY_ID")
                             secret = os.getenv("RAZORPAY_KEY_SECRET")
                             
-                            # 2. Make the real distinguishable API call
+                            # Make a genuine, distinguishable API call to Payment Links
                             real_res = await client.post(
-                                "https://api.razorpay.com/v1/payments",
+                                "https://api.razorpay.com/v1/payment_links",
                                 auth=(key, secret),
                                 json={
                                     "amount": 1000,
                                     "currency": "INR",
-                                    "email": "test@test.com",
-                                    "contact": "9999999999",
-                                    "method": "card",
-                                    "order_id": new_order_id,
-                                    "card": {
-                                        "name": "Fallback Test Card",
-                                        "number": "4111111111111111",
-                                        "expiry_month": "12",
-                                        "expiry_year": "25",
-                                        "cvv": "123"
-                                    }
+                                    "description": f"Re-consent for Order {order_id}",
+                                    "customer": {
+                                        "name": "AI Buyer",
+                                        "email": "buyer@agent.com",
+                                        "contact": "9876543210"
+                                    },
+                                    "notify": {"sms": False, "email": False}
                                 }
                             )
                             
-                            print(f"  [Agent] [REAL CALL] Razorpay S2S Response: HTTP {real_res.status_code}")
+                            print(f"  [Agent] [REAL CALL] Razorpay Payment Link Response: HTTP {real_res.status_code}")
                             
                             if real_res.status_code in [200, 201]:
-                                log_attempt(order_id, current_retry_count, category, action_to_take, "success", "Real Razorpay API succeeded")
-                                return {"status": "success", "data": real_res.json()}
+                                pl_data = real_res.json()
+                                log_attempt(order_id, current_retry_count, category, action_to_take, "success", f"Real API Success: Created Payment Link {pl_data.get('id')}")
+                                return {"status": "success", "data": pl_data}
                             else:
                                 err_msg = real_res.json().get("error", {}).get("description", "Unknown error")
                                 log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Real API Rejection: {err_msg}")
