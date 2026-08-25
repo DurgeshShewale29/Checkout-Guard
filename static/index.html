@@ -185,7 +185,12 @@
     <div class="main-content">
         <!-- Left Panel: Transaction List -->
         <div class="panel left-panel">
-            <h2>Transactions</h2>
+            <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <h2>Transactions</h2>
+                <div id="metrics" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">
+                    <!-- Metrics will go here -->
+                </div>
+            </div>
             <div class="table-container">
                 <table>
                     <thead>
@@ -228,12 +233,22 @@
             const tbody = document.getElementById('transactionList');
             tbody.innerHTML = '';
             
+            let totalFailures = 0;
+            let recovered = 0;
+            let escalated = 0;
+            
             transactions.forEach(tx => {
                 const tr = document.createElement('tr');
                 tr.onclick = () => fetchDetail(tx.transaction_id);
                 
                 const badgeClass = tx.final_outcome === 'success' ? 'status-success' : 'status-escalated';
                 const initial = tx.initial_failure || 'None';
+                
+                if (tx.initial_failure) {
+                    totalFailures++;
+                    if (tx.final_outcome === 'success') recovered++;
+                    if (tx.final_outcome === 'escalated') escalated++;
+                }
                 
                 tr.innerHTML = `
                     <td style="font-family: monospace;">${tx.transaction_id}</td>
@@ -242,6 +257,15 @@
                 `;
                 tbody.appendChild(tr);
             });
+            
+            const metricsDiv = document.getElementById('metrics');
+            if (totalFailures > 0) {
+                const recPct = Math.round((recovered / totalFailures) * 100);
+                const escPct = Math.round((escalated / totalFailures) * 100);
+                metricsDiv.innerHTML = `Auto-Recovered: <strong style="color: var(--success);">${recPct}%</strong> &nbsp;|&nbsp; Escalated: <strong style="color: var(--error);">${escPct}%</strong>`;
+            } else {
+                metricsDiv.innerHTML = 'No failures recorded.';
+            }
         }
 
         async function fetchDetail(txId) {

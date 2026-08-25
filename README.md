@@ -64,6 +64,20 @@ AI Agents attempting autonomous purchases frequently encounter complex, multi-st
 5. **Run the Demo:**
    Use the buttons at the top of the dashboard to trigger live simulated failures and watch the Agent Loop autonomously recover or escalate them!
 
+## 🧪 Simulation vs. Real API
+
+CheckoutGuard blends simulation with real-world API integration to reliably demonstrate its architecture:
+
+* **Simulated Environment**: To reliably test the decision engine without flaky UI automation, the initial "attempts" simulate a variety of error responses (e.g. `timeout`, `expired_token`).
+* **Real API Integration**: The corrective actions are **REAL**. For example, in the **Missing Consent** scenario, when the system determines it needs to re-request user authorization, it performs a genuine Server-to-Server API call to Razorpay's `POST /v1/payment_links` endpoint to generate a live Payment Link for the user.
+
+## 🤖 AI-Buyer Scenarios
+
+The engine is designed to generalize across any checkout flow. The demo includes two distinct flows routed through the exact same logic engine:
+
+1. **Standard Checkout**: E-commerce payment failures (Decline, Timeout, Missing Consent).
+2. **Subscription/Recurring Payment**: Simulates a recurring charge that fails due to an expired saved card token. The engine recognizes the `token_expired` signature and autonomously applies the `refresh token, retry` strategy.
+
 
 Run :
 .venv\Scripts\activate
