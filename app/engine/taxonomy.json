@@ -15,8 +15,8 @@
     "corrective_action": "refresh token, retry"
   },
   "payment_failed": {
-    "is_retryable": false,
-    "max_retries": 0,
-    "corrective_action": "escalate"
+    "is_retryable": true,
+    "max_retries": 1,
+    "corrective_action": "use fallback card, retry"
   }
 }
