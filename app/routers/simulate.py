@@ -69,7 +69,19 @@ async def simulate_payment(req: SimulatePaymentRequest):
             }
         }
         
-    # 5. Success (Happy Path)
+    # 5. Simulate Subscription Failure (reuses token_expired)
+    if req.scenario == "subscription_failed":
+        return {
+            "error": {
+                "code": "BAD_REQUEST_ERROR",
+                "description": "Recurring charge failed because the saved mandate or token has expired.",
+                "source": "business",
+                "step": "recurring_charge",
+                "reason": "token_expired"
+            }
+        }
+        
+    # 6. Success (Happy Path)
     # Generate a fake razorpay payment ID and a mock signature for the agent to verify
     return {
         "status": "success",
