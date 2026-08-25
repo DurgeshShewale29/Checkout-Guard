@@ -8,8 +8,9 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
+    cursor.execute('''DROP TABLE IF EXISTS audit_logs''')
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS audit_logs (
+        CREATE TABLE audit_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             transaction_id TEXT NOT NULL,
             attempt_number INTEGER NOT NULL,
@@ -17,6 +18,7 @@ def init_db():
             action_taken TEXT NOT NULL,
             outcome TEXT NOT NULL,
             reasoning TEXT,
+            confidence_score REAL DEFAULT 1.0,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')

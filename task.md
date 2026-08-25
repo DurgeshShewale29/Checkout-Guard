@@ -7,13 +7,13 @@
 
 ## Phase 0 — Setup
 
-- [x] Create Razorpay account and enable **Test Mode** ← **YOU NEED TO DO THIS**
-- [x] Generate Test Mode API Key ID + Key Secret ← **YOU NEED TO DO THIS**
+- [x] Create Razorpay account and enable **Test Mode**
+- [x] Generate Test Mode API Key ID + Key Secret
 - [x] Set up project folder structure (`/backend`, `/frontend`, `/docs`)
 - [x] Initialize backend (FastAPI — Python 3.14, all 29 deps installed)
 - [x] Set up `.env` for API keys — `.env.example` committed, real `.env` gitignored
 - [x] Initialize git repo — initial commit `9f1ebdb` done (13 files)
-- [x] Create public GitHub repo and push ← **YOU NEED TO DO THIS**
+- [x] Create public GitHub repo and push
 - [x] Write initial `README.md` with project name + one-line description
 
 ---
@@ -45,7 +45,6 @@
 ## Phase 3 — Failure Taxonomy
 
 - [x] Define a taxonomy table mapping failure type → {retryable / not retryable} → suggested corrective action
-  - [x] Soft decline → retryable → retry with same method (Actually wait, task said decline -> not retryable -> escalate)
   - [x] Hard decline → not retryable → escalate
   - [x] Expired token → retryable → refresh token, retry
   - [x] Missing consent → retryable → re-request consent, retry
@@ -83,7 +82,7 @@
 
 ## Phase 6 — Dashboard (Minimal, Not Fancy)
 
-- [x] Create a minimal HTML/JS frontend (or React if you prefer) to visualize the database
+- [x] Create a minimal HTML/JS frontend to visualize the database
 - [x] View 1: A list/table of all transactions and their final outcome
 - [x] View 2: Click a transaction to see its step-by-step audit log (attempt 1, attempt 2, etc.)
 - [x] Add "Trigger Demo" buttons for each failure type (Decline, Timeout, Consent, Expired Token) so you can run the system live during a presentation without flaky test scripts.
@@ -109,17 +108,32 @@
 - [x] Create a simple architecture diagram in the README (text-based is fine)
 - [x] Clean up code: remove scratch files, dead routes, add final comments to the decision engine
 - [x] Push all code to GitHub (ensure repo is public!)
-- [x] Record 5-minute pitch video (problem → live demo → architecture → what broke & how you fixed it → why it matters)
-- [x] Fill out application form: Project Name, Objectives, GitHub URL, Pitch Video Link
-- [x] Submit before deadline (**September 5**)
+- [x] Deploy live on Render — public URL: `https://checkout-guard.onrender.com/dashboard/`
+- [x] Fix production bugs found post-deploy (pkg_resources/Python version pin, hardcoded loopback URL)
 
-**Final Milestone:** The repo is polished, public, and ready to link in the hackathon submission form.
+**Checkpoint:** The repo is polished, public, and the live dashboard is verified working end to end in production, not just locally.
 
 ---
 
-## Stretch Goals (only if core flow is solid and you have time left)
+## Phase 9 — Additional Work (Pre-Submission Hardening)
 
-- [ ] Add an LLM-based classifier for ambiguous/unstructured failure messages (on top of the rule-based one)
-- [ ] Add a second AI-buyer simulation scenario (e.g., subscription payment retry instead of one-time purchase)
-- [ ] Add basic rate-limiting/abuse protection on the retry engine
-- [ ] Add a confidence score to each classification decision
+*Goal: close the "is this real or simulated?" gap and show the engine generalizes beyond one scenario, before recording the final pitch video.*
+
+- [x] **Make one corrective action real (not simulated)** — pick the simplest one (e.g. retry the `missing_consent` scenario by genuinely calling Razorpay's Payment Links API) and replace the current `scenario='success'` shortcut with an actual corrected API call
+- [x] Confirm the real corrective action still logs correctly in the audit trail (attempt 0 failed → real corrective action applied → attempt 1 succeeded, with the actual action recorded)
+- [x] **Add a second AI-buyer transaction scenario** — e.g. a subscription/recurring-payment retry flow — routed through the same existing decision engine (no new engine logic, just a new entry point/scenario)
+- [x] Add a "Trigger" button or flow for the new scenario on the dashboard
+- [x] **Add a summary metric to the dashboard** — e.g. "X% of failures auto-recovered / Y% escalated" computed from the audit log, shown above or beside the transactions table
+- [x] Test all of the above on the live Render deployment, not just locally
+- [x] Update README to reflect what's now real vs. simulated, and describe the second scenario
+- [x] Do a full cold-start retest of both original demo flows (A and B) to confirm nothing broke from these changes
+
+**Checkpoint:** At least one corrective action is genuinely real, a second transaction type proves the engine generalizes, and a summary metric gives judges an at-a-glance proof point — all verified live on Render.
+
+---
+
+## Stretch Goals (only if Phase 9 is done early and time remains)
+
+- [x] Add an LLM-based classifier for ambiguous/unstructured failure messages (on top of the rule-based one)
+- [x] Add basic rate-limiting/abuse protection on the retry engine
+- [x] Add a confidence score to each classification decision

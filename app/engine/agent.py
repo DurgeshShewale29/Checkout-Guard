@@ -2,6 +2,7 @@ import httpx
 from typing import Dict, Any, Optional
 from app.engine.decision import classify_error, decide_action
 from app.db.audit import log_attempt
+from app.engine.rate_limit import check_rate_limit
 
 import os
 PORT = os.getenv("PORT", "8000")
@@ -28,6 +29,11 @@ class AgentRunner:
         
         async with httpx.AsyncClient() as client:
             while True:
+                if check_rate_limit(order_id):
+                    print(f"  [Agent]  ESCALATING: Rate limit exceeded for order '{order_id}'.")
+                    log_attempt(order_id, current_retry_count, "rate_limited", "escalate", "escalated", "Max attempts reached for this order.", 1.0)
+                    return {"status": "escalated", "reason": "Rate limit exceeded. Too many attempts."}
+                    
                 print(f"  [Agent]  Attempting payment for order '{order_id}' (scenario='{current_scenario}', retry={current_retry_count})...")
                 
                 # 1. Execute the API Call
@@ -37,7 +43,7 @@ class AgentRunner:
                 )
                 
                 if res.status_code != 200:
-                    log_attempt(order_id, current_retry_count, "http_error", "escalate", "escalated", f"HTTP {res.status_code}")
+                    log_attempt(order_id, current_retry_count, "http_error", "escalate", "escalated", f"HTTP {res.status_code}", 1.0)
                     return {"status": "escalated", "reason": f"HTTP {res.status_code} Error"}
                     
                 payload = res.json()
@@ -45,12 +51,12 @@ class AgentRunner:
                 # 2. Evaluate Success
                 if "error" not in payload:
                     print(f"  [Agent]  Payment SUCCESS on attempt {current_retry_count + 1}!")
-                    log_attempt(order_id, current_retry_count, None, last_action, "success", "Payment succeeded")
+                    log_attempt(order_id, current_retry_count, None, last_action, "success", "Payment succeeded", 1.0)
                     return {"status": "success", "data": payload}
                     
                 # 3. Classify Failure
-                category = classify_error(payload)
-                print(f"  [Agent]  API returned error. Classified as: '{category}'")
+                category, conf = classify_error(payload)
+                print(f"  [Agent]  API returned error. Classified as: '{category}' (Confidence: {conf*100:.1f}%)")
                 
                 # 4. Decide Action
                 decision = decide_action(category, current_retry_count)
@@ -58,13 +64,13 @@ class AgentRunner:
                 # 5. Act (Escalate)
                 if decision.get("escalate"):
                     print(f"  [Agent]  ESCALATING: {decision.get('reason')}")
-                    log_attempt(order_id, current_retry_count, category, "escalate", "escalated", decision.get('reason'))
+                    log_attempt(order_id, current_retry_count, category, "escalate", "escalated", decision.get('reason'), conf)
                     return {"status": "escalated", "reason": decision.get("reason")}
                     
                 # 6. Act (Retry)
                 action_to_take = decision.get("action")
                 print(f"  [Agent] RETRYING: Action to take -> '{action_to_take}'")
-                log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Will retry (attempt {current_retry_count+1})")
+                log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Will retry (attempt {current_retry_count+1})", conf)
                 current_retry_count += 1
                 last_action = action_to_take
                 
@@ -99,15 +105,15 @@ class AgentRunner:
                             
                             if real_res.status_code in [200, 201]:
                                 pl_data = real_res.json()
-                                log_attempt(order_id, current_retry_count, category, action_to_take, "success", f"Real API Success: Created Payment Link {pl_data.get('id')}")
+                                log_attempt(order_id, current_retry_count, category, action_to_take, "success", f"Real API Success: Created Payment Link {pl_data.get('id')}", conf)
                                 return {"status": "success", "data": pl_data}
                             else:
                                 err_msg = real_res.json().get("error", {}).get("description", "Unknown error")
-                                log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Real API Rejection: {err_msg}")
+                                log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Real API Rejection: {err_msg}", conf)
                                 return {"status": "escalated", "reason": f"Real API Rejection: {err_msg}"}
                                 
                         except Exception as e:
-                            log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Exception: {str(e)}")
+                            log_attempt(order_id, current_retry_count, category, action_to_take, "failed", f"Exception: {str(e)}", conf)
                             return {"status": "escalated", "reason": str(e)}
                     else:
                         print("  [Agent] [CORRECTION] Applying correction... (setting scenario='success')")

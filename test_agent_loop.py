@@ -24,10 +24,23 @@ async def test_agent_loop():
     print(f"Final Agent Result: {res}\n")
     
     # --- Case 3: Max Retries Failure (Persistent Timeout -> Escalate) ---
-    print("--- Case 3: Max Retries Enforced (Persistent TIMEOUT) ---")
+    print("\n--- Case 3: Max Retries Enforced (Persistent TIMEOUT) ---")
     order_id_3 = await get_test_order()
-    res = await agent.execute_payment(order_id_3, initial_scenario="timeout", persistent_failure=True)
-    print(f"Final Agent Result: {res}\n")
+    res_3 = await agent.execute_payment(order_id_3, "timeout", persistent_failure=True)
+    print("Final Agent Result:", res_3)
+    
+    print("\n--- Case 4: LLM Fallback (Ambiguous Error) ---")
+    order_id_4 = await get_test_order()
+    res_4 = await agent.execute_payment(order_id_4, "ambiguous", persistent_failure=True)
+    print("Final Agent Result:", res_4)
+    
+    print("\n--- Case 5: Rate Limiter Enforced ---")
+    # Using the same order_id_4 to trigger rate limits since we already failed a few times
+    # and rate limit is global per order. Wait, rate limit is 5 attempts. We can just loop it.
+    order_id_5 = await get_test_order()
+    for i in range(6):
+        res_5 = await agent.execute_payment(order_id_5, "decline")
+    print("Final Agent Result after 6 attempts:", res_5)
 
 if __name__ == "__main__":
     asyncio.run(test_agent_loop())

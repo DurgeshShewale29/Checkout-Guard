@@ -58,7 +58,7 @@ async def simulate_payment(req: SimulatePaymentRequest):
         }
         
     # 4. Simulate Expired Token
-    if req.scenario == "expired_token":
+    if req.scenario == "token_expired":
         return {
             "error": {
                 "code": "BAD_REQUEST_ERROR",
@@ -78,6 +78,18 @@ async def simulate_payment(req: SimulatePaymentRequest):
                 "source": "business",
                 "step": "recurring_charge",
                 "reason": "token_expired"
+            }
+        }
+        
+    # 5.5 Simulate Unknown / Ambiguous Error
+    if req.scenario == "ambiguous":
+        return {
+            "error": {
+                "code": "UNKNOWN_ERROR",
+                "description": "User did not verify their session within the 3DS time window.",
+                "source": "network",
+                "step": "verification",
+                "reason": "err_3ds_challenge_failed"
             }
         }
         

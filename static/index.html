@@ -7,23 +7,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border-color: #334155;
-            --accent: #3b82f6;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
+            --bg-color: #F7F7F8;
+            --panel-bg: #FFFFFF;
+            --text-main: #1A1A1A;
+            --text-muted: #666666;
+            --border-color: #E5E5E5;
+            --accent: #2563EB;
+            --success: #16a34a;
+            --error: #dc2626;
+            --warning: #d97706;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 2rem;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
             height: 100vh;
@@ -40,7 +40,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
         }
 
         .demo-buttons {
@@ -52,16 +54,19 @@
             background-color: var(--panel-bg);
             color: var(--text-main);
             border: 1px solid var(--border-color);
-            padding: 0.75rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 2px;
+            font-family: 'Inter', system-ui, sans-serif;
+            font-size: 0.75rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s ease-in-out;
         }
 
         button:hover {
             border-color: var(--accent);
-            background-color: rgba(59, 130, 246, 0.1);
+            color: var(--accent);
+            background-color: rgba(37, 99, 235, 0.05);
         }
 
         button:disabled {
@@ -79,11 +84,12 @@
         .panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.5rem;
+            border-radius: 4px;
+            padding: 1rem;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
 
         .left-panel {
@@ -106,8 +112,9 @@
 
         th, td {
             text-align: left;
-            padding: 1rem;
+            padding: 0.5rem 0.75rem;
             border-bottom: 1px solid var(--border-color);
+            font-size: 0.875rem;
         }
 
         th {
@@ -124,26 +131,25 @@
         }
 
         tr:hover {
-            background-color: rgba(255, 255, 255, 0.05);
+            background-color: #f4f4f5;
         }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 999px;
-            font-size: 0.875rem;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
             display: inline-block;
         }
 
-        .status-success { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-        .status-escalated { background: rgba(239, 68, 68, 0.2); color: var(--error); }
+        .status-success { color: var(--success); }
+        .status-escalated { color: var(--error); }
         
         .log-entry {
-            background: rgba(0,0,0,0.2);
-            border-left: 4px solid var(--accent);
-            padding: 1rem;
-            margin-bottom: 1rem;
-            border-radius: 0 8px 8px 0;
+            background: #FFFFFF;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--accent);
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+            border-radius: 2px;
         }
 
         .log-entry.outcome-success { border-left-color: var(--success); }
@@ -185,11 +191,9 @@
     <div class="main-content">
         <!-- Left Panel: Transaction List -->
         <div class="panel left-panel">
-            <div style="display: flex; justify-content: space-between; align-items: baseline;">
-                <h2>Transactions</h2>
-                <div id="metrics" style="font-size: 0.9rem; color: var(--text-muted); font-weight: 500;">
-                    <!-- Metrics will go here -->
-                </div>
+            <div style="margin-bottom: 1rem;">
+                <h2 style="margin: 0 0 0.25rem 0; font-size: 1.1rem;">Transactions</h2>
+                <div id="metrics" style="font-size: 0.75rem; color: var(--text-muted);"></div>
             </div>
             <div class="table-container">
                 <table>
@@ -209,7 +213,7 @@
 
         <!-- Right Panel: Audit Trail -->
         <div class="panel right-panel">
-            <h2>Audit Trail Detail</h2>
+            <h2 style="margin: 0 0 1rem 0; font-size: 1.1rem;">Audit Trail Detail</h2>
             <div id="auditDetail" class="table-container" style="padding-right: 10px;">
                 <p style="color: var(--text-muted);">Select a transaction to view its full chronological audit trail.</p>
             </div>
@@ -224,18 +228,39 @@
                 const res = await fetch(`${API_BASE}/transactions`);
                 const data = await res.json();
                 renderTable(data);
+                renderMetrics(data);
             } catch (err) {
                 console.error("Failed to fetch transactions", err);
             }
         }
 
+        function renderMetrics(transactions) {
+            const metricsDiv = document.getElementById('metrics');
+            if (!transactions || transactions.length === 0) {
+                metricsDiv.innerHTML = '0% Recovered / 0% Escalated';
+                return;
+            }
+            
+            // Only count transactions that had an initial failure (needed recovery)
+            const failedTxs = transactions.filter(tx => tx.initial_failure);
+            if (failedTxs.length === 0) {
+                metricsDiv.innerHTML = 'No failures recorded yet';
+                return;
+            }
+            
+            const recovered = failedTxs.filter(tx => tx.final_outcome === 'success').length;
+            const escalated = failedTxs.filter(tx => tx.final_outcome === 'escalated').length;
+            const total = failedTxs.length;
+            
+            const recPct = Math.round((recovered / total) * 100);
+            const escPct = Math.round((escalated / total) * 100);
+            
+            metricsDiv.innerHTML = `<span style="color: var(--text-main); font-weight: 600;">${recPct}% Auto-Recovered</span> / <span style="color: var(--text-muted)">${escPct}% Escalated</span>`;
+        }
+
         function renderTable(transactions) {
             const tbody = document.getElementById('transactionList');
             tbody.innerHTML = '';
-            
-            let totalFailures = 0;
-            let recovered = 0;
-            let escalated = 0;
             
             transactions.forEach(tx => {
                 const tr = document.createElement('tr');
@@ -244,28 +269,13 @@
                 const badgeClass = tx.final_outcome === 'success' ? 'status-success' : 'status-escalated';
                 const initial = tx.initial_failure || 'None';
                 
-                if (tx.initial_failure) {
-                    totalFailures++;
-                    if (tx.final_outcome === 'success') recovered++;
-                    if (tx.final_outcome === 'escalated') escalated++;
-                }
-                
                 tr.innerHTML = `
-                    <td style="font-family: monospace;">${tx.transaction_id}</td>
+                    <td style="font-family: 'IBM Plex Mono', monospace;">${tx.transaction_id}</td>
                     <td>${initial}</td>
                     <td><span class="status-badge ${badgeClass}">${tx.final_outcome.toUpperCase()}</span></td>
                 `;
                 tbody.appendChild(tr);
             });
-            
-            const metricsDiv = document.getElementById('metrics');
-            if (totalFailures > 0) {
-                const recPct = Math.round((recovered / totalFailures) * 100);
-                const escPct = Math.round((escalated / totalFailures) * 100);
-                metricsDiv.innerHTML = `Auto-Recovered: <strong style="color: var(--success);">${recPct}%</strong> &nbsp;|&nbsp; Escalated: <strong style="color: var(--error);">${escPct}%</strong>`;
-            } else {
-                metricsDiv.innerHTML = 'No failures recorded.';
-            }
         }
 
         async function fetchDetail(txId) {
@@ -293,6 +303,7 @@
                         <div class="log-detail"><strong>Action Taken:</strong> ${record.action_taken}</div>
                         <div class="log-detail"><strong>Outcome:</strong> <span style="text-transform:uppercase;">${record.outcome}</span></div>
                         <div class="log-detail"><strong>Reasoning:</strong> ${record.reasoning}</div>
+                        ${record.confidence_score ? `<div class="log-detail"><strong>Confidence:</strong> ${(record.confidence_score * 100).toFixed(1)}%</div>` : ''}
                     </div>
                 `;
                 detailDiv.innerHTML += html;

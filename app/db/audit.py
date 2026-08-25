@@ -8,16 +8,17 @@ def log_attempt(
     failure_type: Optional[str],
     action_taken: str,
     outcome: str,
-    reasoning: Optional[str]
+    reasoning: Optional[str],
+    confidence_score: float = 1.0
 ):
     """Inserts a single audit log record into the database."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
     cursor.execute('''
-        INSERT INTO audit_logs (transaction_id, attempt_number, failure_type, action_taken, outcome, reasoning)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (transaction_id, attempt_number, failure_type, action_taken, outcome, reasoning))
+        INSERT INTO audit_logs (transaction_id, attempt_number, failure_type, action_taken, outcome, reasoning, confidence_score)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ''', (transaction_id, attempt_number, failure_type, action_taken, outcome, reasoning, confidence_score))
     
     conn.commit()
     conn.close()
@@ -29,7 +30,7 @@ def get_audit_trail(transaction_id: str) -> List[Dict[str, Any]]:
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT attempt_number, failure_type, action_taken, outcome, reasoning, timestamp 
+        SELECT attempt_number, failure_type, action_taken, outcome, reasoning, confidence_score, timestamp 
         FROM audit_logs 
         WHERE transaction_id = ?
         ORDER BY attempt_number ASC
