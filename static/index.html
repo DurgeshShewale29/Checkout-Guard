@@ -7,15 +7,17 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #F7F7F8;
-            --panel-bg: #FFFFFF;
-            --text-main: #1A1A1A;
-            --text-muted: #666666;
-            --border-color: #E5E5E5;
-            --accent: #2563EB;
-            --success: #16a34a;
-            --error: #dc2626;
-            --warning: #d97706;
+            --bg-color: #0b1120;
+            --panel-bg: #111827;
+            --text-main: #F3F4F6;
+            --text-muted: #9CA3AF;
+            --border-color: #1F2937;
+            --accent: #38bdf8; /* Cyan */
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --gold: #fbbf24;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
         }
 
         body {
@@ -23,17 +25,27 @@
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 1rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             height: 100vh;
             box-sizing: border-box;
+            background-image: radial-gradient(circle at top right, rgba(56, 189, 248, 0.05), transparent 400px);
         }
 
         h1 {
             margin-top: 0;
-            font-weight: 700;
+            font-weight: 600;
             letter-spacing: -0.5px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        h1::before {
+            content: '🛡️';
+            font-size: 1.5rem;
         }
 
         .header {
@@ -41,42 +53,58 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
-            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .demo-buttons {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         button {
-            background-color: var(--panel-bg);
-            color: var(--text-main);
+            background-color: transparent;
+            color: var(--text-muted);
             border: 1px solid var(--border-color);
-            padding: 0.25rem 0.5rem;
-            border-radius: 2px;
+            padding: 0.35rem 0.75rem;
+            border-radius: 4px;
             font-family: 'Inter', system-ui, sans-serif;
             font-size: 0.75rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: all 0.2s ease;
         }
 
         button:hover {
             border-color: var(--accent);
             color: var(--accent);
-            background-color: rgba(37, 99, 235, 0.05);
+            background-color: var(--accent-glow);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        button.primary-btn {
+            background-color: var(--accent);
+            color: #000;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+        
+        button.primary-btn:hover {
+            background-color: #7dd3fc;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
         }
 
         button:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
+            box-shadow: none;
+            background-color: transparent;
+            border-color: var(--border-color);
         }
 
         .main-content {
             display: flex;
-            gap: 2rem;
+            gap: 1.5rem;
             flex: 1;
             min-height: 0;
         }
@@ -84,25 +112,37 @@
         .panel {
             background-color: var(--panel-bg);
             border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 1rem;
+            border-radius: 8px;
+            padding: 1.25rem;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        .left-panel {
-            flex: 1;
-        }
-
-        .right-panel {
+        .left-panel, .right-panel {
             flex: 1;
         }
 
         .table-container {
             overflow-y: auto;
             flex: 1;
+            padding-right: 0.5rem;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4B5563;
         }
 
         table {
@@ -112,17 +152,21 @@
 
         th, td {
             text-align: left;
-            padding: 0.5rem 0.75rem;
+            padding: 0.75rem 0.5rem;
             border-bottom: 1px solid var(--border-color);
-            font-size: 0.875rem;
+            font-size: 0.85rem;
         }
 
         th {
             color: var(--text-muted);
-            font-weight: 500;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
             position: sticky;
             top: 0;
             background-color: var(--panel-bg);
+            z-index: 10;
         }
 
         tr {
@@ -131,38 +175,52 @@
         }
 
         tr:hover {
-            background-color: #f4f4f5;
+            background-color: rgba(255,255,255,0.03);
         }
 
         .status-badge {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.7rem;
+            font-weight: 600;
             display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid transparent;
         }
 
-        .status-success { color: var(--success); }
-        .status-escalated { color: var(--error); }
+        .status-success { color: var(--success); border-color: rgba(16, 185, 129, 0.2); background-color: rgba(16, 185, 129, 0.05); }
+        .status-escalated { color: var(--error); border-color: rgba(239, 68, 68, 0.2); background-color: rgba(239, 68, 68, 0.05); }
         
         .log-entry {
-            background: #FFFFFF;
+            background: rgba(0,0,0,0.2);
             border: 1px solid var(--border-color);
             border-left: 3px solid var(--accent);
-            padding: 0.75rem;
+            padding: 1rem;
             margin-bottom: 0.75rem;
-            border-radius: 2px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
         }
 
         .log-entry.outcome-success { border-left-color: var(--success); }
         .log-entry.outcome-escalated { border-left-color: var(--error); }
 
         .log-meta {
-            font-size: 0.875rem;
-            color: var(--text-muted);
+            font-size: 0.75rem;
+            color: var(--gold);
             margin-bottom: 0.5rem;
+            font-family: monospace;
+            letter-spacing: -0.2px;
         }
 
         .log-detail {
-            margin: 0.25rem 0;
+            margin: 0.35rem 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .log-detail strong {
+            color: var(--text-muted);
+            font-weight: 500;
         }
 
         .loader {
@@ -170,15 +228,51 @@
             margin-left: 10px;
             font-size: 0.875rem;
             color: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
         }
 
         .ai-buyer-panel {
             background-color: var(--panel-bg);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.05);
+            background-image: linear-gradient(to right, rgba(56, 189, 248, 0.03), transparent);
+        }
+        
+        input[type="text"], select {
+            background-color: rgba(0,0,0,0.2);
+            color: var(--text-main);
             border: 1px solid var(--border-color);
+            padding: 0.6rem 0.75rem;
             border-radius: 4px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            border-color: var(--accent);
+        }
+        
+        #aiResponse {
+            font-size: 0.85rem; 
+            color: var(--text-muted); 
+            background: rgba(0,0,0,0.2); 
+            padding: 1rem; 
+            border: 1px dashed var(--border-color); 
+            border-radius: 6px; 
+            display: none;
+            margin-top: 1rem;
+            line-height: 1.5;
         }
 
     </style>
@@ -186,7 +280,7 @@
 <body>
 
     <div class="header">
-        <h1>CheckoutGuard Audit Dashboard</h1>
+        <h1>CheckoutGuard</h1>
         <div class="demo-buttons">
             <button onclick="triggerDemo('missing_consent')">Trigger: Missing Consent</button>
             <button onclick="triggerDemo('token_expired')">Trigger: Expired Token</button>
@@ -199,27 +293,27 @@
 
     <!-- AI Buyer Panel -->
     <div class="ai-buyer-panel">
-        <h2 style="margin-top: 0; font-size: 1rem; font-weight: 600;">Autonomous AI Buyer</h2>
-        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
-            <input type="text" id="aiIntentInput" placeholder="Tell the AI Buyer what to purchase... e.g. 'buy a birthday gift for my sister'" style="flex: 1; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 2px;">
-            <select id="aiScenarioSelect" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 2px;">
+        <h2 style="margin-top: 0; font-size: 1.1rem; font-weight: 600; color: #fff;">Autonomous AI Buyer</h2>
+        <div style="display: flex; gap: 0.75rem;">
+            <input type="text" id="aiIntentInput" placeholder="Tell the AI Buyer what to purchase... e.g. 'buy a birthday gift for my sister'" style="flex: 1;">
+            <select id="aiScenarioSelect">
                 <option value="success">Scenario: Success</option>
                 <option value="missing_consent">Scenario: Missing Consent</option>
                 <option value="token_expired">Scenario: Expired Token</option>
                 <option value="timeout">Scenario: Timeout</option>
                 <option value="decline">Scenario: Decline</option>
             </select>
-            <button onclick="triggerAIBuyer()" style="padding: 0.5rem 1rem; background-color: var(--accent); color: white; border: none;">Go</button>
+            <button class="primary-btn" onclick="triggerAIBuyer()">Execute Purchase</button>
         </div>
-        <div id="aiResponse" style="font-size: 0.875rem; color: var(--text-muted); background: #f8fafc; padding: 0.75rem; border: 1px dashed var(--border-color); border-radius: 2px; display: none;"></div>
+        <div id="aiResponse"></div>
     </div>
 
     <div class="main-content">
         <!-- Left Panel: Transaction List -->
         <div class="panel left-panel">
-            <div style="margin-bottom: 1rem;">
-                <h2 style="margin: 0 0 0.25rem 0; font-size: 1.1rem;">Transactions</h2>
-                <div id="metrics" style="font-size: 0.75rem; color: var(--text-muted);"></div>
+            <div style="margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: baseline;">
+                <h2 style="margin: 0; font-size: 1.1rem; color: #fff;">Transaction Monitor</h2>
+                <div id="metrics" style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"></div>
             </div>
             <div class="table-container">
                 <table>
@@ -239,7 +333,7 @@
 
         <!-- Right Panel: Audit Trail -->
         <div class="panel right-panel">
-            <h2 style="margin: 0 0 1rem 0; font-size: 1.1rem;">Audit Trail Detail</h2>
+            <h2 style="margin: 0 0 1.25rem 0; font-size: 1.1rem; color: #fff;">Audit Trail & Resolution</h2>
             <div id="auditDetail" class="table-container" style="padding-right: 10px;">
                 <p style="color: var(--text-muted);">Select a transaction to view its full chronological audit trail.</p>
             </div>
@@ -281,7 +375,7 @@
             const recPct = Math.round((recovered / total) * 100);
             const escPct = Math.round((escalated / total) * 100);
             
-            metricsDiv.innerHTML = `<span style="color: var(--text-main); font-weight: 600;">${recPct}% Auto-Recovered</span> / <span style="color: var(--text-muted)">${escPct}% Escalated</span>`;
+            metricsDiv.innerHTML = `<span style="color: var(--success); font-weight: 600;">${recPct}% Auto-Recovered</span> <span style="margin: 0 0.5rem;">|</span> <span style="color: var(--error)">${escPct}% Escalated</span>`;
         }
 
         function renderTable(transactions) {
@@ -316,7 +410,7 @@
 
         function renderDetail(txId, trail) {
             const detailDiv = document.getElementById('auditDetail');
-            detailDiv.innerHTML = `<h3 style="margin-top:0; font-family:monospace;">${txId}</h3>`;
+            detailDiv.innerHTML = `<div style="margin-bottom:1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);"><span style="color:var(--text-muted); font-size:0.75rem;">TRANSACTION ID</span><br><strong style="font-family:monospace; font-size:1.1rem; color: #fff;">${txId}</strong></div>`;
             
             trail.forEach(record => {
                 const outcomeClass = record.outcome === 'success' ? 'outcome-success' : 
@@ -384,9 +478,9 @@
                     respDiv.innerHTML = `<span style="color:var(--error)">${data.reason}</span>`;
                 } else {
                     respDiv.innerHTML = `
-                        <strong style="color:var(--text-main);">Selected:</strong> ${data.product.name} (₹${data.product.price_inr})<br>
-                        <strong style="color:var(--text-main);">Reasoning:</strong> ${data.reasoning}<br>
-                        <strong style="color:var(--text-main);">Order ID:</strong> <span style="font-family: monospace;">${data.order_id}</span> <span style="color:var(--text-muted); font-style:italic;">(Processing through CheckoutGuard via simulated '${scenario}' scenario...)</span>
+                        <strong style="color:var(--accent);">Selected:</strong> <span style="color:#fff;">${data.product.name} (₹${data.product.price_inr})</span><br>
+                        <strong style="color:var(--accent);">Reasoning:</strong> <span style="color:var(--text-main);">${data.reasoning}</span><br>
+                        <strong style="color:var(--accent);">Order ID:</strong> <span style="font-family: monospace; color:#fff;">${data.order_id}</span> <span style="color:var(--text-muted); font-style:italic;">(Processing through CheckoutGuard via simulated '${scenario}'...)</span>
                     `;
                 }
                 
