@@ -11,28 +11,30 @@
 
 When an AI buyer hits a checkout API and encounters an error—like an expired token, a missing 3DS consent, or a rate limit—it doesn’t know what to do. Standard API clients just crash and throw a generic `HTTP 400 Bad Request`. The transaction fails, the business loses revenue, and a human has to manually intervene to figure out what went wrong. 
 
-In an agentic economy, manual intervention defeats the entire purpose of automation. We need a way for systems to self-heal when payments fail."
+In an agentic economy, manual intervention defeats the entire purpose of automation. We need systems that can take an intent, execute the purchase, and crucially—*self-heal* when payments fail."
 
 ## 2. Our Objectives (1:00 - 1:45)
 **"That is why I built CheckoutGuard."**
 
-"CheckoutGuard is an autonomous, self-healing middleware layer that sits exactly between an AI Buyer Agent and a backend payment provider like Razorpay or Stripe. 
+"CheckoutGuard is an end-to-end autonomous purchasing pipeline and self-healing middleware layer. It sits exactly between an AI Buyer Agent and a backend payment provider like Razorpay. 
 
 Our objectives with this project were threefold:
-1. **Zero Human Intervention:** We wanted to build an engine that could intercept raw payment errors and fix them automatically in milliseconds.
-2. **Absolute Reliability:** If an error is truly fatal—like a hard bank decline—the system must know when to stop and safely escalate the issue rather than blindly retrying and triggering fraud alerts.
+1. **End-to-End Autonomy:** We wanted to build a full loop. A system where you can type 'buy a birthday gift for my sister', an LLM decides what to buy, and the system executes the purchase.
+2. **Zero Human Intervention:** If the payment fails—say due to missing consent or a hard bank decline—the system must intercept the raw error and fix it automatically in milliseconds, or safely escalate it rather than blindly retrying and triggering fraud alerts.
 3. **Auditability:** In finance, black boxes are illegal. We needed a system that meticulously logs exactly *why* an AI made a financial decision, ensuring total compliance and trust."
 
 ## 3. How We Solve the Issue (1:45 - 3:30)
 **"So, how does CheckoutGuard actually work?"**
 
-"When an AI agent attempts a payment and fails, CheckoutGuard intercepts the raw API error payload and runs it through our **Decision Engine**. 
+"It starts with the **AI Buyer**. Users type a natural language intent into our dashboard. Our LLM (powered by Groq) parses the catalog, selects the best product, and triggers the checkout. 
+
+When the checkout API throws an error, CheckoutGuard intercepts the raw payload and runs it through our **Decision Engine**. 
 
 First, it uses a lightning-fast, deterministic rule-based taxonomy. It reads the error—say, a `consent_missing` flag from Razorpay—and instantly knows the solution. 
 
 But what happens if the API throws a completely new, unstructured error that the rules don’t recognize? 
 
-This is where our **Stretch Goal** comes in. If the rule engine fails, CheckoutGuard dynamically falls back to an **LLM (Gemini 2.5 Flash)**. We prompt the LLM with the raw error payload and ask it to intelligently map the ambiguous error back to our known taxonomy. 
+This is where our **Stretch Goal** comes in. If the rule engine fails, CheckoutGuard dynamically falls back to the LLM. We prompt the LLM with the raw error payload and ask it to intelligently map the ambiguous error back to our known taxonomy. 
 
 Once the error is classified, our **Autonomous Agent Loop** takes action. 
 - If a token is expired, it requests a new one. 

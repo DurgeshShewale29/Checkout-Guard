@@ -160,8 +160,8 @@
 - [x] Test the full loop end to end locally: natural-language input → product selection → checkout attempt → (optional) failure → recovery/escalation → logged
 - [ ] Test the full loop on the live Render deployment
 - [x] Keep the existing manual "Trigger" buttons working as-is — this is additive, not a replacement, so they remain a safe fallback demo path
-- [ ] Update README to describe the AI Buyer Agent and how it fits with the existing recovery layer
-- [ ] Update the 5-min pitch script to lead with this fuller "decide → buy → recover" story instead of just the recovery layer alone
+- [x] Update README to describe the AI Buyer Agent and how it fits with the existing recovery layer
+- [x] Update the 5-min pitch script to lead with this fuller "decide → buy → recover" story instead of just the recovery layer alone
 
 **Checkpoint:** The AI Buyer Agent can take a plain-English purchase instruction, pick a product, attempt checkout, and — if it fails — CheckoutGuard recovers or escalates automatically, all without manual button-clicking. Both the new autonomous flow and the original manual triggers work reliably on the live deployment.
 

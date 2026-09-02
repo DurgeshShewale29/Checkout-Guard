@@ -1,28 +1,31 @@
 # CheckoutGuard AI
 
-CheckoutGuard is an agentic failure-recovery layer sitting between an AI buyer agent and backend checkout APIs (like Razorpay). 
+CheckoutGuard is an end-to-end autonomous purchasing pipeline and failure-recovery layer. It enables AI agents to make purchasing decisions from a catalog and execute them, while a self-healing middleware layer intercepts and resolves any complex backend payment errors (like those from Razorpay).
 
 ## 🎯 Problem Statement
 
 AI Agents attempting autonomous purchases frequently encounter complex, multi-step checkout flows and payment failures (e.g. expired tokens, 3DS consent challenges, hard bank declines). Most standard API clients simply crash or throw generic `HTTP 400` errors, requiring human intervention.
 
-**CheckoutGuard** solves this by acting as an autonomous middle-layer. It intercepts raw payment errors, classifies them using a deterministic taxonomy, and uses a self-healing Agent Loop to automatically apply the correct fix (e.g. refreshing a token, requesting user consent) and retrying the transaction, or safely escalating unrecoverable errors. All actions are rigorously logged in an audit database for financial compliance.
+**CheckoutGuard** solves this by providing a full "decide → buy → recover" loop. First, an **Autonomous AI Buyer** translates natural language into a concrete product purchase. Then, the **CheckoutGuard Middleware** intercepts raw payment errors, classifies them using a deterministic taxonomy, and uses a self-healing Agent Loop to automatically apply the correct fix (e.g. requesting user consent, refreshing a token) and retry the transaction. All actions are rigorously logged in an audit database for financial compliance.
 
 ## 🏗️ Architecture
 
 ```text
-[ AI Buyer Agent ] 
-       │ 
-       ▼ (1) POST /api/payments
-[ CheckoutGuard API (FastAPI) ] ── (2) Simulate API Call ──▶ [ Mock Razorpay / API ]
-       │                                                              │
-       ▼ (3) If Error                                                 ▼ 
-[ Decision Engine ] ◀─────────────────────── (4) Return Error Payload ─┘
+[ Natural Language Intent ]
        │
-       ▼ (5) Classify & Decide Action
+       ▼ (1) POST /api/dashboard/trigger_ai_buyer
+[ AI Buyer Agent (Groq LLM) ] ──▶ Translates intent to Product ID
+       │ 
+       ▼ (2) POST /api/payments/orders
+[ CheckoutGuard API ] ─────────── (3) Simulate API Call ──▶ [ Mock Razorpay / API ]
+       │                                                              │
+       ▼ (4) If Error                                                 ▼ 
+[ Decision Engine ] ◀─────────────────────── (5) Return Error Payload ─┘
+       │
+       ▼ (6) Classify & Decide Action
 [ Agent Loop (agent.py) ]
        │
-       ├─▶ IF RETRYABLE: Apply fix (e.g. Real Razorpay Payment Link creation), Increment retry count, GOTO (2)
+       ├─▶ IF RETRYABLE: Apply fix (e.g. Real Payment Link), Increment retry, GOTO (3)
        │
        └─▶ IF ESCALATE: Halt cleanly, return structured reason to AI Buyer
        │
@@ -36,13 +39,14 @@ To safely test failure loops without relying on flaky third-party testing sandbo
 2. **Subscription Failure (Second Scenario)**: Proving that the decision engine generalizes beyond a standard checkout, we added a recurring payment failure scenario. It simulates an expired saved card, which the engine successfully identifies and maps to the existing `token_expired` rule, automatically attempting a token refresh.
 
 ## ✨ Advanced Features (Stretch Goals)
-- **LLM-Based Classifier Fallback:** If the rule-based decision engine encounters a completely unknown or ambiguous error structure, it falls back to a Gemini 2.5 Flash LLM prompt. The LLM dynamically maps the unstructured error to the known taxonomy.
-- **Confidence Scores:** Every decision made by the engine is assigned a Confidence Score (0-100%). Rule-based matches score 100%, while LLM fallbacks provide their own computed confidence, which is tracked in the SQLite DB and displayed in the UI.
+- **Full Autonomous Purchasing Loop:** Users can chat directly with the dashboard to state a buying intent (e.g. "buy a birthday gift for my sister"). The AI Buyer parses the catalog, triggers the order, and routes it directly into the CheckoutGuard recovery loop.
+- **LLM-Based Classifier Fallback:** If the rule-based decision engine encounters a completely unknown or ambiguous error structure, it falls back to a Groq LLM prompt. The LLM dynamically maps the unstructured error to the known taxonomy.
+- **Confidence Scores:** Every decision made by the engine is assigned a Confidence Score (0-100%). Rule-based matches score 100%, while LLM fallbacks provide their own computed confidence.
 - **Rate-Limiting / Abuse Protection:** An in-memory sliding window rate limiter protects the backend from infinite loops by halting execution and escalating if an `order_id` triggers more than 5 attempts within a 60-second window.
 
 ## 💻 Tech Stack
 - **Backend:** Python 3, FastAPI, HTTPX
-- **AI/LLM:** Google Generative AI (`gemini-2.5-flash`)
+- **AI/LLM:** Groq (`qwen/qwen3.6-27b` for intent matching and `llama-3.1-8b-instant` for fallback classification)
 - **Persistence:** SQLite (Built-in)
 - **Frontend Dashboard:** Vanilla HTML/JS/CSS (Dense, utilitarian engineering UI with no build step required)
 - **Design Pattern:** Rule-based Autonomous Agent Loop with LLM Fallback
@@ -67,7 +71,7 @@ To safely test failure loops without relying on flaky third-party testing sandbo
    ```env
    RAZORPAY_KEY_ID=your_key_here
    RAZORPAY_KEY_SECRET=your_secret_here
-   GEMINI_API_KEY=your_gemini_key_here  # Required for LLM Fallback
+   GROQ_API_KEY=your_groq_key_here  # Required for AI Buyer & LLM Fallback
    ```
 
 4. **Start the FastAPI Server:**
