@@ -40,3 +40,4 @@ frontend/.env.local
 .pytest_cache/
 htmlcov/
 .coverage
+prep.md  
