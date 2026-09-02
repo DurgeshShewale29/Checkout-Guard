@@ -172,6 +172,15 @@
             color: var(--accent);
         }
 
+        .ai-buyer-panel {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
     </style>
 </head>
 <body>
@@ -186,6 +195,23 @@
             <button onclick="triggerDemo('subscription_failed')">Trigger: Subscription Failure</button>
             <span id="loader" class="loader">Running Agent Loop...</span>
         </div>
+    </div>
+
+    <!-- AI Buyer Panel -->
+    <div class="ai-buyer-panel">
+        <h2 style="margin-top: 0; font-size: 1rem; font-weight: 600;">Autonomous AI Buyer</h2>
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <input type="text" id="aiIntentInput" placeholder="Tell the AI Buyer what to purchase... e.g. 'buy a birthday gift for my sister'" style="flex: 1; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 2px;">
+            <select id="aiScenarioSelect" style="padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 2px;">
+                <option value="success">Scenario: Success</option>
+                <option value="missing_consent">Scenario: Missing Consent</option>
+                <option value="token_expired">Scenario: Expired Token</option>
+                <option value="timeout">Scenario: Timeout</option>
+                <option value="decline">Scenario: Decline</option>
+            </select>
+            <button onclick="triggerAIBuyer()" style="padding: 0.5rem 1rem; background-color: var(--accent); color: white; border: none;">Go</button>
+        </div>
+        <div id="aiResponse" style="font-size: 0.875rem; color: var(--text-muted); background: #f8fafc; padding: 0.75rem; border: 1px dashed var(--border-color); border-radius: 2px; display: none;"></div>
     </div>
 
     <div class="main-content">
@@ -323,6 +349,51 @@
                 await fetchTransactions();
             } catch (err) {
                 alert("Failed to trigger demo.");
+            } finally {
+                loader.style.display = 'none';
+                btns.forEach(b => b.disabled = false);
+            }
+        }
+
+        async function triggerAIBuyer() {
+            const input = document.getElementById('aiIntentInput').value;
+            const scenario = document.getElementById('aiScenarioSelect').value;
+            if (!input) {
+                alert("Please enter a buying intent.");
+                return;
+            }
+
+            const loader = document.getElementById('loader');
+            const btns = document.querySelectorAll('button');
+            const respDiv = document.getElementById('aiResponse');
+            
+            loader.style.display = 'inline-block';
+            btns.forEach(b => b.disabled = true);
+            respDiv.style.display = 'block';
+            respDiv.innerHTML = '<i>Agent is deciding...</i>';
+            
+            try {
+                const res = await fetch(`${API_BASE}/trigger_ai_buyer`, { 
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ intent: input, scenario: scenario })
+                });
+                const data = await res.json();
+                
+                if (data.status === 'error') {
+                    respDiv.innerHTML = `<span style="color:var(--error)">${data.reason}</span>`;
+                } else {
+                    respDiv.innerHTML = `
+                        <strong style="color:var(--text-main);">Selected:</strong> ${data.product.name} (₹${data.product.price_inr})<br>
+                        <strong style="color:var(--text-main);">Reasoning:</strong> ${data.reasoning}<br>
+                        <strong style="color:var(--text-main);">Order ID:</strong> <span style="font-family: monospace;">${data.order_id}</span> <span style="color:var(--text-muted); font-style:italic;">(Processing through CheckoutGuard via simulated '${scenario}' scenario...)</span>
+                    `;
+                }
+                
+                // Refresh the table to show the new transaction flowing through CheckoutGuard
+                await fetchTransactions();
+            } catch (err) {
+                respDiv.innerHTML = `<span style="color:var(--error)">Failed to trigger AI Buyer. Check server logs.</span>`;
             } finally {
                 loader.style.display = 'none';
                 btns.forEach(b => b.disabled = false);

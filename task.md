@@ -137,3 +137,46 @@
 - [x] Add an LLM-based classifier for ambiguous/unstructured failure messages (on top of the rule-based one)
 - [x] Add basic rate-limiting/abuse protection on the retry engine
 - [x] Add a confidence score to each classification decision
+
+
+## Phase 10 — UI Polish ✅
+
+- [x] Moved dashboard away from generic dark/pill-badge AI-default look
+- [x] Clean light-background, high-contrast, minimal style with plain-text status labels
+- [x] Restrained accent color, subtle card depth/shadow, hover states
+- [x] Verified readable and professional, not decorated
+
+---
+
+## Phase 11 — AI Buyer Agent (New, Big Addition)
+
+*Goal: cover the OTHER half of Track 1's brief ("makes a merchant transactable by an AI buyer end to end") — not just recovery, but the full loop: an agent that decides to buy, executes the purchase, and lets CheckoutGuard recover from failure autonomously. No changes needed to the existing decision engine, taxonomy, or audit logging — this sits on top as a new trigger source.*
+
+- [x] Build a small mock product catalog (5-10 items, hardcoded JSON — name, price, description)
+- [x] Add an LLM call (Anthropic or OpenAI API) that takes a natural-language buying intent (e.g. "buy a birthday gift under ₹1000") and selects a matching product from the catalog
+- [x] Wire the LLM's product decision into the existing checkout flow as a new request source (reuse existing Orders/Payments integration — no new payment logic)
+- [x] Confirm that when this new flow hits a failure, the existing CheckoutGuard decision engine/taxonomy/audit logging handles it exactly as it does for manual triggers — no special-casing
+- [x] Add a simple chat-style input to the dashboard: "Tell the AI Buyer what to purchase" → show the agent's reasoning/choice → show the resulting transaction flow through CheckoutGuard
+- [x] Test the full loop end to end locally: natural-language input → product selection → checkout attempt → (optional) failure → recovery/escalation → logged
+- [ ] Test the full loop on the live Render deployment
+- [x] Keep the existing manual "Trigger" buttons working as-is — this is additive, not a replacement, so they remain a safe fallback demo path
+- [ ] Update README to describe the AI Buyer Agent and how it fits with the existing recovery layer
+- [ ] Update the 5-min pitch script to lead with this fuller "decide → buy → recover" story instead of just the recovery layer alone
+
+**Checkpoint:** The AI Buyer Agent can take a plain-English purchase instruction, pick a product, attempt checkout, and — if it fails — CheckoutGuard recovers or escalates automatically, all without manual button-clicking. Both the new autonomous flow and the original manual triggers work reliably on the live deployment.
+
+---
+
+## Phase 12 — Final Pitch Prep (Do Last)
+
+- [ ] Re-record the 5-minute pitch video reflecting the AI Buyer Agent + CheckoutGuard as one complete story
+- [ ] Do at least 3 full timed dry runs of the pitch, live demo included (both the AI Buyer flow and the manual fallback triggers)
+- [ ] Prepare honest answers for likely panel questions:
+  - "How would this work with real production APIs, not test mode?"
+  - "Which parts are simulated vs. real right now?"
+  - "Why rule-based instead of an LLM for the core decision engine, but LLM-based for product selection?"
+  - "What happens if the AI Buyer picks something unexpected?"
+- [ ] Fill out application form: Project Name, Objectives, GitHub URL, Pitch Video Link
+- [ ] Submit before deadline (**September 5**)
+
+**Final Milestone:** Pitch is rehearsed, weak points have honest answers ready, and the form is submitted.

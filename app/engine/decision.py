@@ -1,7 +1,7 @@
 import json
 import os
 from typing import Dict, Any, Tuple
-import google.generativeai as genai
+from groq import Groq
 
 # Load the taxonomy config
 TAXONOMY_PATH = os.path.join(os.path.dirname(__file__), "taxonomy.json")
@@ -30,13 +30,12 @@ def classify_error(error_payload: Dict[str, Any]) -> Tuple[str, float]:
 
 def classify_with_llm(error_payload: Dict[str, Any]) -> Tuple[str, float]:
     """Uses an LLM to map ambiguous errors to the known taxonomy."""
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return "unknown", 0.0
         
     try:
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-2.5-flash")
+        client = Groq(api_key=api_key)
         
         prompt = f"""
         You are an expert payments classification agent. Map the following raw error payload to one of our defined failure taxonomy categories.
@@ -52,8 +51,12 @@ def classify_with_llm(error_payload: Dict[str, Any]) -> Tuple[str, float]:
         If it does not match any category, use "unknown".
         """
         
-        response = model.generate_content(prompt)
-        text = response.text
+        response = client.chat.completions.create(
+            model="qwen/qwen3.6-27b",
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.0
+        )
+        text = response.choices[0].message.content
         # Clean markdown code blocks if present
         if "```json" in text:
             text = text.split("```json")[1].split("```")[0].strip()

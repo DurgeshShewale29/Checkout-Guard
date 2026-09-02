@@ -1,0 +1,58 @@
+[
+    {
+        "id": "prod_1",
+        "name": "Premium Wireless Headphones",
+        "price_inr": 12500,
+        "description": "Noise-cancelling over-ear headphones with 30-hour battery life and rich bass.",
+        "category": "electronics"
+    },
+    {
+        "id": "prod_2",
+        "name": "Mechanical Keyboard",
+        "price_inr": 8500,
+        "description": "Tactile mechanical keyboard with RGB backlighting and hot-swappable switches.",
+        "category": "electronics"
+    },
+    {
+        "id": "prod_3",
+        "name": "Ceramic Coffee Mug",
+        "price_inr": 850,
+        "description": "Handcrafted 350ml ceramic mug, microwave and dishwasher safe.",
+        "category": "home"
+    },
+    {
+        "id": "prod_4",
+        "name": "Organic Green Tea",
+        "price_inr": 450,
+        "description": "Premium whole leaf green tea from the estates of Darjeeling. 100g pack.",
+        "category": "grocery"
+    },
+    {
+        "id": "prod_5",
+        "name": "Fitness Smartwatch",
+        "price_inr": 4500,
+        "description": "Water-resistant fitness tracker with heart rate monitor and sleep tracking.",
+        "category": "electronics"
+    },
+    {
+        "id": "prod_6",
+        "name": "Running Shoes",
+        "price_inr": 3200,
+        "description": "Lightweight breathable running shoes with excellent grip and cushioning.",
+        "category": "apparel"
+    },
+    {
+        "id": "prod_7",
+        "name": "Leather Wallet",
+        "price_inr": 1200,
+        "description": "Genuine leather bifold wallet with RFID blocking and 6 card slots.",
+        "category": "accessories"
+    },
+    {
+        "id": "prod_8",
+        "name": "Stainless Steel Water Bottle",
+        "price_inr": 900,
+        "description": "1 Liter vacuum insulated flask. Keeps drinks cold for 24 hours or hot for 12 hours.",
+        "category": "home"
+    }
+]
